@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  server:
+    build: ./server
+    ports:
+      - '3001:3001'
+    volumes:
+      - ./server/db.sqlite3:/usr/src/app/db.sqlite3
+    environment:
+      - GOOGLE_CLIENT_ID=your_google_client_id
+      - GOOGLE_CLIENT_SECRET=your_google_client_secret
+      - COOKIE_KEY=a_super_secret_key
+
+  client:
+    build: ./client
+    ports:
+      - '3000:80'
+    depends_on:
+      - server
+
+networks:
+  default:
+    driver: bridge

@@ -1,0 +1,21 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Backend for the application",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.1.2",
+    "express": "^4.19.2",
+    "passport": "^0.7.0",
+    "cookie-session": "^2.1.0",
+    "passport-google-oauth20": "^2.0.0",
+    "puppeteer": "^22.12.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
