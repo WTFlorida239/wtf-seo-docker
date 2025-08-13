@@ -8,7 +8,11 @@ require('./config/passport'); // Passport configuration
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(express.json());
+app.use(express.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 
 app.use(
   cookieSession({
@@ -28,6 +32,12 @@ app.use('/api/keywords', requireLogin, keywordsRouter);
 
 const auditRouter = require('./routes/audit');
 app.use('/api/audit', requireLogin, auditRouter);
+
+const shopifyRouter = require('./routes/shopify');
+app.use('/api/shopify', requireLogin, shopifyRouter);
+
+const webhooksRouter = require('./routes/webhooks');
+app.use('/api/webhooks', webhooksRouter); // Webhooks are not protected by user login
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, '../client/build')));

@@ -35,9 +35,19 @@ const createTables = () => {
     );
   `;
 
+  const createWebhooksTable = `
+    CREATE TABLE IF NOT EXISTS webhooks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      topic TEXT NOT NULL,
+      payload TEXT NOT NULL,
+      receivedAt TEXT DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
+
   db.exec(createUserTable);
   db.exec(createKeywordsTable);
   db.exec(createCompetitorsTable);
+  db.exec(createWebhooksTable);
 };
 
 createTables();

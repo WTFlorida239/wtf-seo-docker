@@ -6,6 +6,7 @@ import LandingPage from './pages/LandingPage';
 import DashboardPage from './pages/DashboardPage';
 import AuditPage from './pages/AuditPage';
 import KeywordsPage from './pages/KeywordsPage';
+import ShopifyPage from './pages/ShopifyPage';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -36,6 +37,7 @@ const App = () => {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/audit" element={<AuditPage />} />
             <Route path="/keywords" element={<KeywordsPage />} />
+          <Route path="/shopify" element={<ShopifyPage />} />
           </Routes>
         </div>
       </div>

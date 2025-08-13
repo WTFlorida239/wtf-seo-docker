@@ -15,6 +15,9 @@ const Sidebar = () => {
         <li>
           <Link to="/audit">Audit</Link>
         </li>
+        <li>
+          <Link to="/shopify">Shopify</Link>
+        </li>
       </ul>
     </div>
   );

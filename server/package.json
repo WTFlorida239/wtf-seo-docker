@@ -13,7 +13,9 @@
     "passport": "^0.7.0",
     "cookie-session": "^2.1.0",
     "passport-google-oauth20": "^2.0.0",
-    "puppeteer": "^22.12.1"
+    "puppeteer": "^22.12.1",
+    "@shopify/shopify-api": "^10.0.0",
+    "dotenv": "^16.4.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
