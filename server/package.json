@@ -15,7 +15,8 @@
     "passport-google-oauth20": "^2.0.0",
     "puppeteer": "^22.12.1",
     "@shopify/shopify-api": "^10.0.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "openai": "^4.52.7"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"

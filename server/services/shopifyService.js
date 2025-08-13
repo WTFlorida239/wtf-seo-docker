@@ -111,4 +111,117 @@ const analyzeAllProducts = async () => {
 };
 
 
-module.exports = { getShopInfo, analyzeAllProducts };
+const updateImageAltText = async (imageId, altText) => {
+  try {
+    const client = new shopify.clients.Graphql({
+      session: {
+        shop: process.env.SHOPIFY_STORE_URL,
+        accessToken: process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN,
+      },
+    });
+
+    const mutation = `
+      mutation imageUpdate($input: ImageInput!) {
+        imageUpdate(input: $input) {
+          image {
+            id
+            altText
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+
+    const variables = {
+      input: {
+        id: imageId,
+        altText: altText,
+      },
+    };
+
+    const response = await client.query({
+      data: {
+        query: mutation,
+        variables,
+      },
+    });
+
+    const userErrors = response.body.data.imageUpdate.userErrors;
+    if (userErrors && userErrors.length > 0) {
+      throw new Error(userErrors.map(e => e.message).join(', '));
+    }
+
+    return response.body.data.imageUpdate.image;
+
+  } catch (error) {
+    console.error(`Error updating alt text for image ${imageId}:`, error);
+    throw new Error('Failed to update image alt text in Shopify.');
+  }
+};
+
+const updateProductMetafields = async (productId, metafields) => {
+  try {
+    const client = new shopify.clients.Graphql({
+      session: {
+        shop: process.env.SHOPIFY_STORE_URL,
+        accessToken: process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN,
+      },
+    });
+
+    const mutation = `
+      mutation productUpdate($input: ProductInput!) {
+        productUpdate(input: $input) {
+          product {
+            id
+            metafields(first: 2, namespace: "seo") {
+              edges {
+                node {
+                  key
+                  value
+                }
+              }
+            }
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    `;
+
+    const variables = {
+      input: {
+        id: productId,
+        metafields: metafields.map(mf => ({
+          namespace: "seo",
+          key: mf.key,
+          value: mf.value,
+        })),
+      },
+    };
+
+    const response = await client.query({
+      data: {
+        query: mutation,
+        variables,
+      },
+    });
+
+    const userErrors = response.body.data.productUpdate.userErrors;
+    if (userErrors && userErrors.length > 0) {
+      throw new Error(userErrors.map(e => e.message).join(', '));
+    }
+
+    return response.body.data.productUpdate.product;
+
+  } catch (error) {
+    console.error(`Error updating metafields for product ${productId}:`, error);
+    throw new Error('Failed to update product metafields in Shopify.');
+  }
+};
+
+module.exports = { getShopInfo, analyzeAllProducts, updateImageAltText, updateProductMetafields };

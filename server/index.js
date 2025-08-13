@@ -39,6 +39,9 @@ app.use('/api/shopify', requireLogin, shopifyRouter);
 const webhooksRouter = require('./routes/webhooks');
 app.use('/api/webhooks', webhooksRouter); // Webhooks are not protected by user login
 
+const aiRouter = require('./routes/ai');
+app.use('/api/ai', requireLogin, aiRouter);
+
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, '../client/build')));
 
