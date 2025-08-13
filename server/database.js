@@ -1,7 +1,7 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-const db = new Database('db.sqlite3', { fileMustExist: false });
+const db = new Database(path.join(__dirname, 'data', 'db.sqlite3'), { fileMustExist: false });
 
 const createTables = () => {
   const createUserTable = `
