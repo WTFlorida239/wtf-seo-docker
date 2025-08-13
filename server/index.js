@@ -42,6 +42,9 @@ app.use('/api/webhooks', webhooksRouter); // Webhooks are not protected by user 
 const aiRouter = require('./routes/ai');
 app.use('/api/ai', requireLogin, aiRouter);
 
+const socialRouter = require('./routes/social');
+app.use('/api/social', requireLogin, socialRouter);
+
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, '../client/build')));
 

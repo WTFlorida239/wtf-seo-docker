@@ -23,6 +23,9 @@ const Sidebar = () => {
             </li>
           </ul>
         </li>
+        <li>
+          <Link to="/social">Social Media</Link>
+        </li>
       </ul>
     </div>
   );
