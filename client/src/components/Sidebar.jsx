@@ -17,6 +17,11 @@ const Sidebar = () => {
         </li>
         <li>
           <Link to="/shopify">Shopify</Link>
+          <ul style={{ paddingLeft: '20px', listStyleType: 'disc' }}>
+            <li>
+              <Link to="/shopify/products">Product SEO</Link>
+            </li>
+          </ul>
         </li>
       </ul>
     </div>
