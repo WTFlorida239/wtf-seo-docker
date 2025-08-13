@@ -16,7 +16,8 @@
     "puppeteer": "^22.12.1",
     "@shopify/shopify-api": "^10.0.0",
     "dotenv": "^16.4.5",
-    "openai": "^4.52.7"
+    "openai": "^4.52.7",
+    "axios": "^1.7.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
