@@ -126,8 +126,9 @@ const SocialMediaPage = () => {
           <button type="submit">Connect Account</button>
         </form>
       </div>
+      </div>
 
-      <div style={{ marginTop: '40px' }}>
+      <div style={{ marginTop: '40px', gridColumn: '1 / -1' }}>
         <h2>Connected Accounts</h2>
         {isLoading && <p>Loading accounts...</p>}
         {error && <p style={{ color: 'red' }}>{error}</p>}
