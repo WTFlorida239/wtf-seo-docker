@@ -10,7 +10,9 @@ const createTables = () => {
       email TEXT UNIQUE,
       googleId TEXT UNIQUE,
       name TEXT,
-      createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+      roleId INTEGER DEFAULT 2, -- Default to 'Editor' role
+      createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (roleId) REFERENCES roles (id)
     );
   `;
 
@@ -75,6 +77,33 @@ const createTables = () => {
     );
   `;
 
+  const createRolesTable = `
+    CREATE TABLE IF NOT EXISTS roles (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT UNIQUE NOT NULL
+    );
+  `;
+
+  const createPermissionsTable = `
+    CREATE TABLE IF NOT EXISTS permissions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      action TEXT UNIQUE NOT NULL -- e.g., 'manage_users', 'edit_seo', 'view_analytics'
+    );
+  `;
+
+  const createRolePermissionsTable = `
+    CREATE TABLE IF NOT EXISTS role_permissions (
+      roleId INTEGER,
+      permissionId INTEGER,
+      PRIMARY KEY (roleId, permissionId),
+      FOREIGN KEY (roleId) REFERENCES roles (id),
+      FOREIGN KEY (permissionId) REFERENCES permissions (id)
+    );
+  `;
+
+  db.exec(createRolesTable);
+  db.exec(createPermissionsTable);
+  db.exec(createRolePermissionsTable);
   db.exec(createUserTable);
   db.exec(createKeywordsTable);
   db.exec(createCompetitorsTable);
@@ -83,6 +112,45 @@ const createTables = () => {
   db.exec(createSocialPostsTable);
 };
 
+const seedDatabase = () => {
+  const insertRole = db.prepare('INSERT OR IGNORE INTO roles (id, name) VALUES (?, ?)');
+  const insertPermission = db.prepare('INSERT OR IGNORE INTO permissions (id, action) VALUES (?, ?)');
+  const insertRolePermission = db.prepare('INSERT OR IGNORE INTO role_permissions (roleId, permissionId) VALUES (?, ?)');
+
+  const roles = [
+    { id: 1, name: 'admin' },
+    { id: 2, name: 'editor' },
+    { id: 3, name: 'viewer' },
+  ];
+
+  const permissions = [
+    { id: 1, action: 'manage_users' },
+    { id: 2, action: 'manage_billing' },
+    { id: 3, action: 'edit_seo' },
+    { id: 4, action: 'edit_social' },
+    { id: 5, action: 'view_analytics' },
+  ];
+
+  const rolePermissions = {
+    admin: [1, 2, 3, 4, 5], // Can do everything
+    editor: [3, 4, 5],      // Can edit content and view analytics
+    viewer: [5],            // Can only view analytics
+  };
+
+  db.transaction(() => {
+    roles.forEach(role => insertRole.run(role.id, role.name));
+    permissions.forEach(perm => insertPermission.run(perm.id, perm.action));
+    for (const roleName in rolePermissions) {
+      const roleId = roles.find(r => r.name === roleName).id;
+      rolePermissions[roleName].forEach(permissionId => {
+        insertRolePermission.run(roleId, permissionId);
+      });
+    }
+  })();
+};
+
+
 createTables();
+seedDatabase();
 
 module.exports = db;

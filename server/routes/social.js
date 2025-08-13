@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { addSocialAccount, getSocialAccounts, schedulePost } = require('../services/socialService');
+const requirePermission = require('../middleware/requirePermission');
 
 // All routes in this file are protected by the requireLogin middleware in server/index.js
 
@@ -13,7 +14,7 @@ router.get('/accounts', (req, res) => {
   }
 });
 
-router.post('/accounts', (req, res) => {
+router.post('/accounts', requirePermission('edit_social'), (req, res) => {
   const { platform, username, accessToken, refreshToken } = req.body;
   if (!platform || !username || !accessToken) {
     return res.status(400).json({ error: 'Platform, username, and accessToken are required.' });
@@ -33,7 +34,7 @@ router.post('/accounts', (req, res) => {
   }
 });
 
-router.post('/posts', (req, res) => {
+router.post('/posts', requirePermission('edit_social'), (req, res) => {
   const { socialAccountId, content, mediaUrls, scheduledAt } = req.body;
   if (!socialAccountId || !content || !scheduledAt) {
     return res.status(400).json({ error: 'socialAccountId, content, and scheduledAt are required.' });

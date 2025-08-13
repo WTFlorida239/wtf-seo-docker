@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const requirePermission = require('../middleware/requirePermission');
 const {
   getShopInfo,
   analyzeAllProducts,
@@ -27,7 +28,7 @@ router.get('/products/analyze', async (req, res) => {
   }
 });
 
-router.post('/images/:imageId/update-alt', async (req, res) => {
+router.post('/images/:imageId/update-alt', requirePermission('edit_seo'), async (req, res) => {
   try {
     const { imageId } = req.params;
     const { altText } = req.body;
@@ -38,7 +39,7 @@ router.post('/images/:imageId/update-alt', async (req, res) => {
   }
 });
 
-router.post('/products/:productId/update-metafields', async (req, res) => {
+router.post('/products/:productId/update-metafields', requirePermission('edit_seo'), async (req, res) => {
   try {
     const { productId } = req.params;
     const { metafields } = req.body;
@@ -49,7 +50,7 @@ router.post('/products/:productId/update-metafields', async (req, res) => {
   }
 });
 
-router.post('/products/bulk-update', async (req, res) => {
+router.post('/products/bulk-update', requirePermission('edit_seo'), async (req, res) => {
   try {
     const { productUpdates } = req.body;
     const result = await bulkUpdateProductMetafields(productUpdates);

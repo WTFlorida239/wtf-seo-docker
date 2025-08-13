@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const { generateReviewResponse } = require('../services/aiService');
 const { postGbpReviewReply } = require('../services/gbpService');
+const requirePermission = require('../middleware/requirePermission');
 
 // All routes in this file will be protected by the requireLogin middleware
 
 // Endpoint to generate an AI-powered reply suggestion
-router.post('/reviews/:reviewId/generate-response', async (req, res) => {
+router.post('/reviews/:reviewId/generate-response', requirePermission('edit_social'), async (req, res) => {
   try {
     const { reviewText, customerName, businessName, sentiment } = req.body;
     if (!reviewText || !customerName || !businessName || !sentiment) {
@@ -20,7 +21,7 @@ router.post('/reviews/:reviewId/generate-response', async (req, res) => {
 });
 
 // Endpoint to post the final reply to GBP
-router.post('/reviews/:reviewId/post-reply', async (req, res) => {
+router.post('/reviews/:reviewId/post-reply', requirePermission('edit_social'), async (req, res) => {
   try {
     const { reviewId } = req.params;
     const { replyText } = req.body;

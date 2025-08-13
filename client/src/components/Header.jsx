@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
 
-const Header = ({ user }) => {
+const Header = () => {
+  const { user } = useUser();
+
   const renderContent = () => {
     switch (user) {
       case null:
-        return; // Still fetching
       case false:
         return (
           <li>

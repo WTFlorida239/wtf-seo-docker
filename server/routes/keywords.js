@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
+const requirePermission = require('../middleware/requirePermission');
 
 // GET /api/keywords - List all keywords for the current user
 router.get('/', (req, res) => {
@@ -14,7 +15,7 @@ router.get('/', (req, res) => {
 });
 
 // POST /api/keywords - Add a new keyword
-router.post('/', (req, res) => {
+router.post('/', requirePermission('edit_seo'), (req, res) => {
   const { text } = req.body;
   if (!text) {
     return res.status(400).json({ error: 'Keyword text is required' });
@@ -31,7 +32,7 @@ router.post('/', (req, res) => {
 });
 
 // DELETE /api/keywords/:id - Remove a keyword
-router.delete('/:id', (req, res) => {
+router.delete('/:id', requirePermission('edit_seo'), (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
   try {

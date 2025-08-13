@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { useUser } from './context/UserContext';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import LandingPage from './pages/LandingPage';
@@ -12,26 +13,11 @@ import SocialMediaPage from './pages/SocialMediaPage';
 import GbpPage from './pages/GbpPage';
 
 const App = () => {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch('/api/current_user');
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data);
-        }
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      }
-    };
-    fetchUser();
-  }, []);
+  const { user } = useUser();
 
   return (
     <div>
-      <Header user={user} />
+      <Header />
       <div style={{ display: 'flex' }}>
         {user && <Sidebar />}
         <div className="container" style={{ flexGrow: 1, padding: '20px' }}>

@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { generateAltText, generateSeoTitle, generateSeoDescription } from '../services/aiAPI';
 import { updateImageAltText, updateProductMetafields, bulkUpdateProductMetafields } from '../services/shopifyAPI';
 import Modal from '../components/Modal';
+import { useUser } from '../context/UserContext';
 
 // A sub-component to handle the suggestion and application logic for a single issue
 const FixableIssue = ({ issueText, onGenerate, onApply }) => {
+  const { hasPermission } = useUser();
   const [suggestion, setSuggestion] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,19 +28,23 @@ const FixableIssue = ({ issueText, onGenerate, onApply }) => {
   return (
     <div>
       <span>{issueText}</span>
-      <button onClick={handleGenerate} disabled={isLoading} style={{ marginLeft: '10px' }}>
-        {isLoading ? 'Generating...' : 'Generate Fix'}
-      </button>
-      {suggestion && (
-        <div style={{ marginTop: '5px' }}>
-          <input
-            type="text"
-            value={suggestion}
-            onChange={(e) => setSuggestion(e.target.value)}
-            style={{ width: '80%' }}
-          />
-          <button onClick={handleApply} style={{ marginLeft: '5px' }}>Apply</button>
-        </div>
+      {hasPermission('edit_seo') && (
+        <>
+          <button onClick={handleGenerate} disabled={isLoading} style={{ marginLeft: '10px' }}>
+            {isLoading ? 'Generating...' : 'Generate Fix'}
+          </button>
+          {suggestion && (
+            <div style={{ marginTop: '5px' }}>
+              <input
+                type="text"
+                value={suggestion}
+                onChange={(e) => setSuggestion(e.target.value)}
+                style={{ width: '80%' }}
+              />
+              <button onClick={handleApply} style={{ marginLeft: '5px' }}>Apply</button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
