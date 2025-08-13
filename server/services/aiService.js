@@ -73,8 +73,39 @@ async function generateSeoDescription(productTitle, productDescription) {
   }
 }
 
+async function generateReviewResponse({ reviewText, customerName, businessName, sentiment }) {
+  let promptSentiment = "a neutral";
+  if (sentiment === 'positive') {
+    promptSentiment = "a happy and thankful";
+  } else if (sentiment === 'negative') {
+    promptSentiment = "an apologetic and helpful";
+  }
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: `You are a professional and friendly customer service manager for the business "${businessName}". Your task is to write a response to a customer review. Your tone should be ${promptSentiment}. Address the customer by their name, thank them for their feedback, and keep the response concise and professional. Do not use quotes in the output.`
+        },
+        {
+          role: "user",
+          content: `The customer, ${customerName}, left the following review: "${reviewText}"`
+        }
+      ],
+      max_tokens: 100,
+    });
+    return response.choices[0].message.content.trim();
+  } catch (error) {
+    console.error('Error generating review response from OpenAI:', error);
+    throw new Error('Failed to generate review response.');
+  }
+}
+
 module.exports = {
   generateAltText,
   generateSeoTitle,
   generateSeoDescription,
+  generateReviewResponse,
 };

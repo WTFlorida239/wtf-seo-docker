@@ -26,6 +26,9 @@ const Sidebar = () => {
         <li>
           <Link to="/social">Social Media</Link>
         </li>
+        <li>
+          <Link to="/gbp">Google Business</Link>
+        </li>
       </ul>
     </div>
   );

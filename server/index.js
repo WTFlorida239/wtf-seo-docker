@@ -45,6 +45,9 @@ app.use('/api/ai', requireLogin, aiRouter);
 const socialRouter = require('./routes/social');
 app.use('/api/social', requireLogin, socialRouter);
 
+const gbpRouter = require('./routes/gbp');
+app.use('/api/gbp', requireLogin, gbpRouter);
+
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, '../client/build')));
 

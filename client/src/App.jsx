@@ -9,6 +9,7 @@ import KeywordsPage from './pages/KeywordsPage';
 import ShopifyPage from './pages/ShopifyPage';
 import ShopifyProductsPage from './pages/ShopifyProductsPage';
 import SocialMediaPage from './pages/SocialMediaPage';
+import GbpPage from './pages/GbpPage';
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -42,6 +43,7 @@ const App = () => {
           <Route path="/shopify" element={<ShopifyPage />} />
           <Route path="/shopify/products" element={<ShopifyProductsPage />} />
           <Route path="/social" element={<SocialMediaPage />} />
+          <Route path="/gbp" element={<GbpPage />} />
           </Routes>
         </div>
       </div>
