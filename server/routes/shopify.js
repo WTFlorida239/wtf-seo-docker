@@ -4,7 +4,8 @@ const {
   getShopInfo,
   analyzeAllProducts,
   updateImageAltText,
-  updateProductMetafields
+  updateProductMetafields,
+  bulkUpdateProductMetafields
 } = require('../services/shopifyService');
 
 // This route is protected by the requireLogin middleware in server/index.js
@@ -43,6 +44,16 @@ router.post('/products/:productId/update-metafields', async (req, res) => {
     const { metafields } = req.body;
     const updatedProduct = await updateProductMetafields(productId, metafields);
     res.json(updatedProduct);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/products/bulk-update', async (req, res) => {
+  try {
+    const { productUpdates } = req.body;
+    const result = await bulkUpdateProductMetafields(productUpdates);
+    res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

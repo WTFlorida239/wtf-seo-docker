@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { generateAltText, generateSeoTitle, generateSeoDescription } from '../services/aiAPI';
-import { updateImageAltText, updateProductMetafields } from '../services/shopifyAPI';
+import { updateImageAltText, updateProductMetafields, bulkUpdateProductMetafields } from '../services/shopifyAPI';
+import Modal from '../components/Modal';
 
 // A sub-component to handle the suggestion and application logic for a single issue
 const FixableIssue = ({ issueText, onGenerate, onApply }) => {
@@ -48,6 +49,55 @@ const ShopifyProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [selectedProducts, setSelectedProducts] = useState(new Set());
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [bulkUpdateStatus, setBulkUpdateStatus] = useState('');
+
+  const handleBulkUpdate = async () => {
+    setBulkUpdateStatus('Initiating bulk update...');
+    try {
+      const productUpdates = Array.from(selectedProducts).map(productId => {
+        // This is a simplified example. A real UI would have more options.
+        // We'll generate a new title tag for all selected products.
+        const product = products.find(p => p.id === productId);
+        return {
+          id: product.id,
+          metafields: [{
+            key: 'title_tag',
+            value: `${product.title} - Now with improved SEO!`
+          }]
+        };
+      });
+
+      const result = await bulkUpdateProductMetafields(productUpdates);
+      setBulkUpdateStatus(result.message);
+      setIsModalOpen(false);
+      setSelectedProducts(new Set()); // Clear selection
+    } catch (error) {
+      setBulkUpdateStatus(`Error: ${error.message}`);
+    }
+  };
+
+  const handleSelectProduct = (productId) => {
+    setSelectedProducts(prevSelected => {
+      const newSelected = new Set(prevSelected);
+      if (newSelected.has(productId)) {
+        newSelected.delete(productId);
+      } else {
+        newSelected.add(productId);
+      }
+      return newSelected;
+    });
+  };
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      const allProductIds = products.map(p => p.id);
+      setSelectedProducts(new Set(allProductIds));
+    } else {
+      setSelectedProducts(new Set());
+    }
+  };
 
   const fetchProductAnalysis = async () => {
     setIsLoading(true);
@@ -96,47 +146,87 @@ const ShopifyProductsPage = () => {
     <div>
       <h1>Shopify Product SEO Dashboard</h1>
       <p>Analyze, generate AI suggestions, and apply fixes for your product SEO.</p>
-      {products.map(product => (
-        <div key={product.id} style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '15px', borderRadius: '5px' }}>
-          <h3><a href={product.url} target="_blank" rel="noopener noreferrer">{product.title}</a></h3>
-          <ul>
-            <li>
-              <strong>Meta Title (Length: {product.analysis.titleTagLength}):</strong>
-              {product.analysis.titleTagLength > 10 && product.analysis.titleTagLength <= 60 ? (
-                <span style={{ color: 'green' }}> Good</span>
-              ) : (
-                <FixableIssue
-                  issueText={product.analysis.titleTag || '(Missing)'}
-                  onGenerate={() => generateSeoTitle(product.title, product.analysis.descriptionTag)}
-                  onApply={(suggestion) => handleApplyMetafield(product.id, 'title_tag', suggestion)}
-                />
-              )}
-            </li>
-            <li>
-              <strong>Meta Description (Length: {product.analysis.descriptionTagLength}):</strong>
-               {product.analysis.descriptionTagLength > 50 && product.analysis.descriptionTagLength <= 160 ? (
-                <span style={{ color: 'green' }}> Good</span>
-              ) : (
-                <FixableIssue
-                  issueText={product.analysis.descriptionTag || '(Missing)'}
-                  onGenerate={() => generateSeoDescription(product.title, product.analysis.descriptionTag)}
-                  onApply={(suggestion) => handleApplyMetafield(product.id, 'description_tag', suggestion)}
-                />
-              )}
-            </li>
-            <li>
-              <strong>Images missing alt text: {product.analysis.imagesWithoutAltText} / {product.analysis.imageCount}</strong>
-              {product.analysis.imagesWithoutAltText > 0 && (
-                 <FixableIssue
-                  issueText=""
-                  onGenerate={() => generateAltText(product.title)}
-                  onApply={(suggestion) => handleApplyAltText(product.id, suggestion)}
-                />
-              )}
-            </li>
-          </ul>
+
+      {selectedProducts.size > 0 && (
+        <div style={{ padding: '10px', background: '#eef', border: '1px solid #ccd', marginBottom: '15px' }}>
+          <strong>{selectedProducts.size} products selected.</strong>
+          <button onClick={() => setIsModalOpen(true)} style={{ marginLeft: '20px' }}>
+            Bulk Actions...
+          </button>
         </div>
-      ))}
+      )}
+
+      {bulkUpdateStatus && <p><strong>Bulk Update Status:</strong> {bulkUpdateStatus}</p>}
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <h2>Bulk Edit {selectedProducts.size} Products</h2>
+        <p>This is a simplified demo. In a real app, you would have more options here.</p>
+        <p>This action will append "- Now with improved SEO!" to the meta title of all selected products.</p>
+        <button onClick={handleBulkUpdate}>Confirm Bulk Update</button>
+      </Modal>
+
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr style={{ borderBottom: '2px solid black' }}>
+            <th style={{ padding: '8px', width: '20px' }}>
+              <input type="checkbox" onChange={handleSelectAll} />
+            </th>
+            <th style={{ textAlign: 'left', padding: '8px' }}>Product</th>
+            <th style={{ textAlign: 'left', padding: '8px' }}>Meta Title</th>
+            <th style={{ textAlign: 'left', padding: '8px' }}>Meta Description</th>
+            <th style={{ textAlign: 'left', padding: '8px' }}>Images Missing Alt Text</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map(product => (
+            <tr key={product.id} style={{ borderBottom: '1px solid #ccc' }}>
+              <td style={{ padding: '8px' }}>
+                <input
+                  type="checkbox"
+                  checked={selectedProducts.has(product.id)}
+                  onChange={() => handleSelectProduct(product.id)}
+                />
+              </td>
+              <td style={{ padding: '8px' }}>
+                <a href={product.url} target="_blank" rel="noopener noreferrer">{product.title}</a>
+              </td>
+              <td style={{ padding: '8px' }}>
+                {product.analysis.titleTagLength > 10 && product.analysis.titleTagLength <= 60 ? (
+                  <span style={{ color: 'green' }}>Good ({product.analysis.titleTagLength})</span>
+                ) : (
+                  <FixableIssue
+                    issueText={`${product.analysis.titleTag || '(Missing)'} (${product.analysis.titleTagLength})`}
+                    onGenerate={() => generateSeoTitle(product.title, product.analysis.descriptionTag)}
+                    onApply={(suggestion) => handleApplyMetafield(product.id, 'title_tag', suggestion)}
+                  />
+                )}
+              </td>
+              <td style={{ padding: '8px' }}>
+                {product.analysis.descriptionTagLength > 50 && product.analysis.descriptionTagLength <= 160 ? (
+                  <span style={{ color: 'green' }}>Good ({product.analysis.descriptionTagLength})</span>
+                ) : (
+                  <FixableIssue
+                    issueText={`${product.analysis.descriptionTag || '(Missing)'} (${product.analysis.descriptionTagLength})`}
+                    onGenerate={() => generateSeoDescription(product.title, product.analysis.descriptionTag)}
+                    onApply={(suggestion) => handleApplyMetafield(product.id, 'description_tag', suggestion)}
+                  />
+                )}
+              </td>
+              <td style={{ padding: '8px' }}>
+                {product.analysis.imagesWithoutAltText > 0 ? (
+                  <FixableIssue
+                    issueText={`${product.analysis.imagesWithoutAltText} / ${product.analysis.imageCount} missing`}
+                    onGenerate={() => generateAltText(product.title)}
+                    onApply={(suggestion) => handleApplyAltText(product.id, suggestion)}
+                  />
+                ) : (
+                  <span style={{ color: 'green' }}>{product.analysis.imagesWithoutAltText} / {product.analysis.imageCount}</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
