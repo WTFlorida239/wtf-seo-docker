@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(
   cookieSession({
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-    keys: [process.env.COOKIE_KEY || 'a_super_secret_key'],
+    keys: [process.env.SESSION_SECRET],
   })
 );
 app.use(passport.initialize());

@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   server:
     build: ./server
@@ -6,10 +5,8 @@ services:
       - '3001:3001'
     volumes:
       - ./server/db.sqlite3:/usr/src/app/db.sqlite3
-    environment:
-      - GOOGLE_CLIENT_ID=your_google_client_id
-      - GOOGLE_CLIENT_SECRET=your_google_client_secret
-      - COOKIE_KEY=a_super_secret_key
+    env_file:
+      - ./.env
 
   client:
     build: ./client
